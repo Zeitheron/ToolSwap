@@ -13,7 +13,7 @@ authors = "Zeitheron"
 description = '''
 Selects the best tool for your convenience.
 Usage:
-* Type "/tswap toggle" to toggle ToolSwap mod. (Doesn't deactivate the mod itself)
+* Type "!tswap toggle" to toggle ToolSwap mod. (Doesn't deactivate the mod itself)
 '''
 [[dependencies.tswap]]
     modId = "forge"
@@ -38,4 +38,4 @@ Usage:
     mandatory = true
     versionRange = "[1,)"
     ordering = "NONE"
-    side = "BOTH"
+    side = "CLIENT"
