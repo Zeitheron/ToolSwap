@@ -1,0 +1,41 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+issueTrackerURL = "https://github.com/Zeitheron/ToolSwap/issues"
+license = "All rights reserved"
+[[mods]]
+modId = "tswap"
+version = "${file.jarVersion}"
+displayName = "Tool Swap"
+updateJSONURL = "http://dccg.herokuapp.com/api/fmluc/246309"
+displayURL = "http://dccg.herokuapp.com/api/fmlhp/246309"
+logoFile = "logo.png"
+authors = "Zeitheron"
+description = '''
+Selects the best tool for your convenience.
+Usage:
+* Type "/tswap toggle" to toggle ToolSwap mod. (Doesn't deactivate the mod itself)
+'''
+[[dependencies.tswap]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "[36,)"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.tswap]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "[1.16.5]"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.tswap]]
+    modId = "hammerlib"
+    mandatory = true
+    versionRange = "[16,)"
+    ordering = "NONE"
+    side = "BOTH"
+[[dependencies.tswap]]
+    modId = "clientcommands"
+    mandatory = true
+    versionRange = "[1,)"
+    ordering = "NONE"
+    side = "BOTH"

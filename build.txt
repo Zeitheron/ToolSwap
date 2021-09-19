@@ -1,0 +1,26 @@
+# Mod Info
+mod_id=tswap
+archive_name=ToolSwap
+mod_name=Tool Swap
+mod_version=16.1.1
+
+# Maven Info
+maven_group=org.zeith.tswap
+
+# MC Info
+mc_version=1.16.5
+forge_version=36.1.24
+hl_version=16.3.14
+
+# MCP Info
+mcp_ch=official
+mcp_vr=1.16.5
+
+# Misc Info
+java=1.8
+
+# Project ID on CurseForge
+cf_project=246309
+
+# alpha, beta, release
+release_type=release
