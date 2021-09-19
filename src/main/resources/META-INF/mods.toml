@@ -36,6 +36,6 @@ Usage:
 [[dependencies.tswap]]
     modId = "clientcommands"
     mandatory = true
-    versionRange = "[1,)"
+    versionRange = "[1.2,)"
     ordering = "NONE"
     side = "CLIENT"
