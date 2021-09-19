@@ -57,7 +57,7 @@ public class SwapEvents
 
 		PlayerEntity player = Minecraft.getInstance().player;
 		RayTraceResult result = Minecraft.getInstance().hitResult;
-		if(player != null && result instanceof EntityRayTraceResult && ((EntityRayTraceResult) result).getEntity() instanceof LivingEntity)
+		if(player != null && result instanceof EntityRayTraceResult && !TSwap.CONFIG.isEntityBlacklisted(((EntityRayTraceResult) result).getEntity()))
 		{
 			if(!TSwap.DATA.shouldSwap() || !CLIENT_PLAYER.test(player))
 				return;
