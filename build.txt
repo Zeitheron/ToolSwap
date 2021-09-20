@@ -2,7 +2,7 @@
 mod_id=tswap
 archive_name=ToolSwap
 mod_name=Tool Swap
-mod_version=16.2.3
+mod_version=16.2.4
 
 # Maven Info
 maven_group=org.zeith.tswap

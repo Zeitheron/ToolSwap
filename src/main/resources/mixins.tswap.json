@@ -6,6 +6,9 @@
 	"target": "@env(DEFAULT)",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
+		"ForgeHooksAccessor",
+		"ForgeHooksMixin",
+		"ItemMixin",
 		"ToolTypeAccessor"
 	],
 	"client": [

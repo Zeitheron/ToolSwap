@@ -9,12 +9,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.zeith.hammerlib.util.cfg.ConfigFile;
 import org.zeith.hammerlib.util.cfg.entries.ConfigEntryCategory;
 import org.zeith.tswap.TSwap;
 import org.zeith.tswap.mixins.ToolTypeAccessor;
+import org.zeith.tswap.utils.SingleBlockReader;
 
 import java.io.File;
 import java.util.*;
@@ -25,11 +27,10 @@ public class TSConfig
 	public final File cfgFile;
 	public final ConfigFile cfg;
 
-	private final Function<String, Set<BlockState>> toolStatesComp = tool -> new HashSet<>();
-	private final Function<BlockState, Set<String>> toolStatesCompF = tool -> new HashSet<>();
-
+	private final Function<BlockState, Set<String>> toolStatesComp = tool -> new HashSet<>();
 	private final Map<BlockState, Set<String>> toolStates = new HashMap<>();
 	private final Map<BlockState, Set<String>> toolStatesView = Collections.unmodifiableMap(toolStates);
+
 	private final List<EntityMatcher> blacklistedEntities = new ArrayList<>();
 
 	private int swapDelay, swordSwapDelay;
@@ -60,17 +61,6 @@ public class TSConfig
 		return swordSwapDelay;
 	}
 
-	public void transpose(Map<String, Set<BlockState>> raw)
-	{
-		long start = System.currentTimeMillis();
-		toolStates.clear();
-		for(String tool : raw.keySet())
-			for(BlockState state : raw.get(tool))
-				if(!toolStates.computeIfAbsent(state, toolStatesCompF).add(tool))
-					TSwap.LOG.info("Duplicate state " + state + " for tool " + tool);
-		TSwap.LOG.info("State transposing complete in " + (System.currentTimeMillis() - start) + " ms. Cached " + toolStates.size() + " block states.");
-	}
-
 	public void reload()
 	{
 		TSwap.LOG.info("Reloading configs...");
@@ -91,14 +81,16 @@ public class TSConfig
 		ConfigEntryCategory tools = cfg.getCategory("Tools")
 				.setDescription("List of all registered tools");
 
-		Map<String, Set<BlockState>> toolStates = new HashMap<>();
+		toolStates.clear();
 
 		for(Block block : ForgeRegistries.BLOCKS.getValues())
 			for(BlockState state : block.getStateDefinition().getPossibleStates())
 			{
 				ToolType tt = state.getHarvestTool();
+				float breakSpeed = state.getDestroySpeed(new SingleBlockReader(state), BlockPos.ZERO);
+				if(breakSpeed >= 0 && tt == null) tt = ToolType.PICKAXE;
 				if(tt != null)
-					toolStates.computeIfAbsent(tt.getName(), toolStatesComp).add(state);
+					toolStates.computeIfAbsent(state, toolStatesComp).add(tt.getName());
 			}
 
 		BlockStateArgument blkState = BlockStateArgument.block();
@@ -111,31 +103,30 @@ public class TSConfig
 					.getValue();
 
 			for(String e : entry)
-			{
-				try
-				{
-					Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(e));
-					if(block != Blocks.AIR && block != null)
-						for(BlockState state : block.getStateDefinition().getPossibleStates())
-							toolStates.computeIfAbsent(tool.getKey(), toolStatesComp).add(state);
-					else
-						throw new RuntimeException();
-				} catch(Throwable e2)
+				if(!e.trim().isEmpty())
 				{
 					try
 					{
-						toolStates.computeIfAbsent(tool.getKey(), toolStatesComp).add(blkState.parse(new StringReader(e)).getState());
-					} catch(Throwable ex)
+						Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(e));
+						if(block != Blocks.AIR && block != null)
+							for(BlockState state : block.getStateDefinition().getPossibleStates())
+								toolStates.computeIfAbsent(state, toolStatesComp).add(tool.getValue().getName());
+						else
+							throw new RuntimeException();
+					} catch(Throwable e2)
 					{
-						TSwap.LOG.warn("Failed to decode " + e + " into something meaningful.");
+						try
+						{
+							toolStates.computeIfAbsent(blkState.parse(new StringReader(e)).getState(), toolStatesComp).add(tool.getValue().getName());
+						} catch(Throwable ex)
+						{
+							TSwap.LOG.warn("Failed to decode " + e + " into something meaningful.");
+						}
 					}
 				}
-			}
 		}
 
-		TSwap.LOG.info("Transposing block state map...");
-
-		transpose(toolStates);
+		TSwap.LOG.info("Indexed " + toolStates.size() + " harvestable block states.");
 
 		TSwap.LOG.info("Saving configs...");
 
@@ -147,6 +138,6 @@ public class TSConfig
 	public ToolType getEffectiveTool(ItemStack stack, BlockState state)
 	{
 		Set<ToolType> tools = stack.getItem().getToolTypes(stack);
-		return tools.stream().filter(tt -> getToolStates().computeIfAbsent(state, toolStatesCompF).contains(tt.getName())).findFirst().orElse(null);
+		return tools.stream().filter(tt -> toolStates.getOrDefault(state, Collections.emptySet()).contains(tt.getName())).findFirst().orElse(null);
 	}
 }

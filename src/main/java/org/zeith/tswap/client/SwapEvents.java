@@ -112,6 +112,7 @@ public class SwapEvents
 			maxS = getSlotForBlock(player, e.getPos(), e.getState());
 		} catch(Throwable err)
 		{
+			err.printStackTrace();
 		}
 
 		if(maxS != -1)

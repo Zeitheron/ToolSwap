@@ -2,9 +2,13 @@ package org.zeith.tswap;
 
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.block.Block;
+import net.minecraft.block.DoublePlantBlock;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
+import net.minecraft.item.Items;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.common.IForgeShearable;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
@@ -12,10 +16,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.zeith.tswap.api.CustomToolTypes;
+import org.zeith.tswap.api.iface.IToolClassesItem;
 import org.zeith.tswap.client.TSConfig;
 import org.zeith.tswap.client.TSData;
+import org.zeith.tswap.mixins.ForgeHooksAccessor;
 import org.zeith.tswap.proxy.TSClientProxy;
 import org.zeith.tswap.proxy.TSCommonProxy;
 
@@ -47,6 +55,14 @@ public class TSwap
 
 	private void loadComplete(FMLLoadCompleteEvent event)
 	{
+		((IToolClassesItem) Items.SHEARS).ToolSwapMod_getToolClasses().put(CustomToolTypes.SHEARS, 0);
+
+		for(Block block : ForgeRegistries.BLOCKS)
+		{
+			if(block instanceof IForgeShearable || block instanceof DoublePlantBlock)
+				ForgeHooksAccessor.getBlockToolSetter().accept(block, CustomToolTypes.SHEARS, 0);
+		}
+
 		CONFIG.reload();
 	}
 
